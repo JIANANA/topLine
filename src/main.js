@@ -4,6 +4,7 @@ import router from './router'
 import ElementUI from 'element-ui'
 import '@/assets/css/gobal.css'
 import 'element-ui/lib/theme-chalk/index.css'
+import '@/assets/font/iconfont.css'
 // 导入axios
 import axios from 'axios'
 // 配置公共根地址
