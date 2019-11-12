@@ -5,12 +5,8 @@ import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
 import '@/assets/font/iconfont.css'
 import '@/assets/css/gobal.css'
-// 导入axios
-import axios from 'axios'
-// 配置公共根地址
-axios.defaults.baseURL = 'http://ttapi.research.itcast.cn/mp/v1_0/'
-// 为了在其他的地方也方便使用,所以这里需要在原型上面绑定这个方法
-Vue.prototype.$http = axios
+// 由于大量的axios在main.js文件中,所以这里可能会出现代码不整洁的情况,所以这里把所有的axios请求都单独的设置出去
+import '../src/utils/ax.js'
 Vue.config.productionTip = false
 Vue.use(ElementUI)
 new Vue({
