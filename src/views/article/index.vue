@@ -8,18 +8,17 @@
       <!-- 搜索文章区域 -->
       <div class="text item">
         <el-form ref="searchFormRef" :model="searchForm">
-          <el-form-item label="文章状态:" >
+          <el-form-item label="文章状态:">
             <!-- 注意:这里的绑定的是绑定在el-group-radio -->
-            <el-radio-group v-model="searchForm.status" @change="getArticleList()">
+            <el-radio-group
+              v-model="searchForm.status"
+              @change="getArticleList()"
+            >
               <el-radio label>全部</el-radio>
               <el-radio label="0">草稿</el-radio>
               <el-radio label="1">待审核</el-radio>
-              <el-radio label="2"
-                >审核通过</el-radio
-              >
-              <el-radio  label="3"
-                >审核失败</el-radio
-              >
+              <el-radio label="2">审核通过</el-radio>
+              <el-radio label="3">审核失败</el-radio>
             </el-radio-group>
           </el-form-item>
           <!-- <el-form ref="searchFormRef" :model="searchForm" label-width="100px">
@@ -44,7 +43,6 @@
                 :key="item.id"
                 :label="item.name"
                 :value="item.id"
-
               >
               </el-option>
             </el-select>
@@ -107,8 +105,10 @@
         </el-table-column>
         <el-table-column prop="pubdate" label="发布时间"> </el-table-column>
         <el-table-column label="操作">
-          <el-button type="primary" size="mini">修改</el-button>
-          <el-button type="danger" size="mini">删除</el-button>
+          <template slot-scope="stData">
+            <el-button type="primary" size="mini">修改</el-button>
+            <el-button type="danger" size="mini" @click="del(stData.row.id)">删除</el-button>
+          </template>
         </el-table-column>
       </el-table>
 
@@ -226,6 +226,19 @@ export default {
         })
         .catch(err => {
           return err
+        })
+    },
+    del (id) {
+      // console.log(id)
+      let pro = this.$http.delete(`/articles/${id}`)
+      pro
+        .then(result => {
+          // console.log(result)
+          this.$message.success('文章删除成功')
+          this.getArticleList()
+        })
+        .catch(err => {
+          return this.$message.error('删除失败' + err)
         })
     }
   }

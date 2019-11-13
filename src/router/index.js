@@ -12,7 +12,8 @@ const routes = [
     children: [
       { path: '/welcome', name: 'welcome', component: () => import('@/views/welcome') },
       { path: '/', redirect: '/welcome' },
-      { path: '/article', name: 'article', component: () => import('@/views/article') }
+      { path: '/article', name: 'article', component: () => import('@/views/article') },
+      { path: '/articleadd', name: 'articleadd', component: () => import('@/views/articleadd') }
     ]
   }
 ]

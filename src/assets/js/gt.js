@@ -228,7 +228,7 @@
 
     var cb = 'geetest_' + random()
     window[cb] = function (data) {
-      if (data.status == 'success') {
+      if (data.status === 'success') {
         callback(data.data)
       } else if (!data.status) {
         callback(data)
