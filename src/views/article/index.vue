@@ -7,16 +7,22 @@
       </div>
       <!-- 搜索文章区域 -->
       <div class="text item">
-        <el-form ref="searchFormRef" :model="searchForm" >
-          <el-form-item label="文章状态:">
-            <el-radio v-model="searchForm.status" label>全部</el-radio>
-            <el-radio v-model="searchForm.status" label="0">草稿</el-radio>
-            <el-radio v-model="searchForm.status" label="1">待审核</el-radio>
-            <el-radio v-model="searchForm.status" label="2">审核通过</el-radio>
-            <el-radio v-model="searchForm.status" label="3">审核失败</el-radio>
-            <el-radio v-model="searchForm.status" label="4">已删除</el-radio>
+        <el-form ref="searchFormRef" :model="searchForm">
+          <el-form-item label="文章状态:" >
+            <!-- 注意:这里的绑定的是绑定在el-group-radio -->
+            <el-radio-group v-model="searchForm.status" @change="getArticleList()">
+              <el-radio label>全部</el-radio>
+              <el-radio label="0">草稿</el-radio>
+              <el-radio label="1">待审核</el-radio>
+              <el-radio label="2"
+                >审核通过</el-radio
+              >
+              <el-radio  label="3"
+                >审核失败</el-radio
+              >
+            </el-radio-group>
           </el-form-item>
-        <!-- <el-form ref="searchFormRef" :model="searchForm" label-width="100px">
+          <!-- <el-form ref="searchFormRef" :model="searchForm" label-width="100px">
           <el-form-item label="文章状态：">
             <el-radio v-model="searchForm.status" label>全部</el-radio>
             <el-radio v-model="searchForm.status" label="0">草稿</el-radio>
@@ -31,12 +37,14 @@
               v-model="searchForm.channel_id"
               placeholder="请选择"
               clearable
+              @change="getArticleList()"
             >
               <el-option
                 v-for="item in channelList"
                 :key="item.id"
                 :label="item.name"
                 :value="item.id"
+
               >
               </el-option>
             </el-select>
@@ -49,7 +57,7 @@
               range-separator="至"
               start-placeholder="开始日期"
               end-placeholder="结束日期"
-              value-format="yyyy-mm-dd"
+              value-format="yyyy-MM-dd"
             >
             </el-date-picker>
           </el-form-item>
@@ -103,6 +111,17 @@
           <el-button type="danger" size="mini">删除</el-button>
         </el-table-column>
       </el-table>
+
+      <el-pagination
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+        :current-page="searchForm.page"
+        :page-sizes="[10, 20, 30, 40]"
+        :page-size="searchForm.per_page"
+        layout="total, sizes, prev, pager, next, jumper"
+        :total="tot"
+      >
+      </el-pagination>
     </el-card>
   </div>
 </template>
@@ -149,7 +168,11 @@ export default {
         this.searchForm.begin_pubdate = newVal[0]
         this.searchForm.end_pubdate = newVal[1]
         // 经过调试工具的观察,此时的值已经是双向绑定了
+      } else {
+        this.searchForm.begin_pubdate = ''
+        this.searchForm.end_pubdate = ''
       }
+      this.getArticleList()
     }
   },
   created () {
@@ -160,6 +183,15 @@ export default {
     this.getArticleList()
   },
   methods: {
+    // 这里使用的是每次变化的条数
+    handleSizeChange (val) {
+      this.searchForm.per_page = val
+      this.getArticleList()
+    },
+    handleCurrentChange (val) {
+      this.searchForm.page = val
+      this.getArticleList()
+    },
     getChannelList () {
       let pro = this.$http.get('/channels')
       pro
@@ -187,13 +219,13 @@ export default {
       let pro = this.$http.get('/articles', { params: searchData })
       pro
         .then(result => {
-          console.log(result)
+          // console.log(result)
           this.articleList = result.data.data.results
           // console.log(this.articleList)
           this.tot = result.data.data.total_count
         })
         .catch(err => {
-          console.log(err)
+          return err
         })
     }
   }
@@ -203,5 +235,9 @@ export default {
 <style lang="less" scoped>
 .box-card {
   margin-bottom: 15px;
+}
+.el-pagination {
+  margin-top: 20px;
+  text-align: center;
 }
 </style>

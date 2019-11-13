@@ -1,6 +1,7 @@
 import Vue from 'vue'
 // 导入axios
 import axios from 'axios'
+import router from '@/router'
 // 配置公共根地址
 axios.defaults.baseURL = 'http://ttapi.research.itcast.cn/mp/v1_0/'
 // 为了在其他的地方也方便使用,所以这里需要在原型上面绑定这个方法
@@ -19,6 +20,11 @@ axios.interceptors.request.use(function (config) {
   return config
 }, function (error) {
   // 对请求错误做些什么
-  return Promise.reject(error)
+  // 由于这个登录时间有要求限制,所以这里需要对其进行判断
+  // console.log(error)
+  if (error.response.status === 401) {
+    // 强制登录
+    router.push({ name: 'login' })
+  }
 })
 Vue.prototype.$http = axios
