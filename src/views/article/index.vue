@@ -1,19 +1,17 @@
 <template>
   <div>
-    <!-- 观察网站可以发现下面是两个卡片区域 -->
+    <!--搜索卡片区-->
     <el-card class="box-card">
+      <!--命名插槽，头部内容-->
       <div slot="header" class="clearfix">
         <span>全部图文</span>
       </div>
-      <!-- 搜索文章区域 -->
+      <!--匿名插槽，内容主体-->
       <div class="text item">
-        <el-form ref="searchFormRef" :model="searchForm">
-          <el-form-item label="文章状态:">
-            <!-- 注意:这里的绑定的是绑定在el-group-radio -->
-            <el-radio-group
-              v-model="searchForm.status"
-              @change="getArticleList()"
-            >
+        <!--el-form搜索表单区域-->
+        <el-form ref="searchFormRef" :model="searchForm" label-width="100px">
+          <el-form-item label="文章状态：">
+            <el-radio-group v-model="searchForm.status">
               <el-radio label>全部</el-radio>
               <el-radio label="0">草稿</el-radio>
               <el-radio label="1">待审核</el-radio>
@@ -21,34 +19,21 @@
               <el-radio label="3">审核失败</el-radio>
             </el-radio-group>
           </el-form-item>
-          <!-- <el-form ref="searchFormRef" :model="searchForm" label-width="100px">
-          <el-form-item label="文章状态：">
-            <el-radio v-model="searchForm.status" label>全部</el-radio>
-            <el-radio v-model="searchForm.status" label="0">草稿</el-radio>
-            <el-radio v-model="searchForm.status" label="1">待审核</el-radio>
-            <el-radio v-model="searchForm.status" label="2">审核通过</el-radio>
-            <el-radio v-model="searchForm.status" label="3">审核失败</el-radio>
-            <el-radio v-model="searchForm.status" label="4">已删除</el-radio>
-          </el-form-item> -->
-          <!-- 频道列表区域 -->
           <el-form-item label="频道列表：">
-            <el-select
-              v-model="searchForm.channel_id"
-              placeholder="请选择"
-              clearable
-              @change="getArticleList()"
-            >
+            <el-select v-model="searchForm.channel_id" placeholder="请选择" clearable >
+              <!--label:小项目对外提示名称-->
+              <!--value:小项目本身的value值-->
               <el-option
                 v-for="item in channelList"
                 :key="item.id"
                 :label="item.name"
                 :value="item.id"
-              >
-              </el-option>
+              ></el-option>
             </el-select>
           </el-form-item>
-          <!-- 时间选择区域 -->
-          <el-form-item label="时间选择: ">
+          <el-form-item label="时间选择：">
+            <!--type:日期选取器类型 year/month/date/dates/ week/datetime/datetimerange/ daterange/monthrange-->
+            <!--value-format:设置接收日期的格式为 年-月-日-->
             <el-date-picker
               v-model="timetotime"
               type="daterange"
@@ -56,189 +41,219 @@
               start-placeholder="开始日期"
               end-placeholder="结束日期"
               value-format="yyyy-MM-dd"
-            >
-            </el-date-picker>
+            ></el-date-picker>
           </el-form-item>
         </el-form>
       </div>
     </el-card>
 
-    <!-- 文章列表展示评论区域 -->
+    <!--文章列表卡片区-->
     <el-card class="box-card">
+      <!--命名插槽，头部内容-->
       <div slot="header" class="clearfix">
-        <span>共找到{{ tot }}条符合条件的内容</span>
+        <span>共找到{{tot}}条符合条件的内容</span>
       </div>
-      <!-- 表格文章展示区域 -->
-      <el-table :data="articleList">
-        <el-table-column label="图标">
-          <!-- 在我们获取数据的时候服务端以网络图片的形式给我们发送了数据,这时我们的数据是已知的,
-          假设el-table-column是一个父组件此时图片标签就是一个插槽,数据已知的情况下只需要图片,所以这里需要的就是一个作用域插槽
-           -->
-          <img
-            :src="stData.row.cover.images[0]"
-            slot-scope="stData"
-            alt="没有图片"
-            width="150"
-            height="100"
-          />
-        </el-table-column>
-        <el-table-column prop="title" label="标题"> </el-table-column>
-        <el-table-column label="状态" prop="status">
-          <!-- <el-tag v-if="stData.row.status===0" slot-scope="stData">草稿</el-tag>
-          <el-tag type="success" v-else-if="stData.row.status===1" slot-scope="stData">待审核</el-tag>
-          <el-tag type="info" v-else-if="stData.row.status===2" slot-scope="stData">审核通过</el-tag>
-          <el-tag type="warning" v-else-if="stData.row.status===3" slot-scope="stData">审核失败</el-tag>
-          <el-tag type="danger" v-else>已删除</el-tag> -->
-          <template slot-scope="stData">
-            <el-tag v-if="stData.row.status === 0">草稿</el-tag>
-            <el-tag type="success" v-else-if="stData.row.status === 1"
-              >待审核</el-tag
+      <!--匿名插槽，内容主体-->
+      <div class="text item">
+        <!--table表格组件应用-->
+        <!--data:数据来源的/数组对象集[{},{},{}..]-->
+        <el-table :data="articleList">
+          <!--el-table-column：定义表格各个"列"的-->
+          <!--label：定义表格表头-->
+          <!--prop：定义数据属性名称字段-->
+          <el-table-column label="图标">
+            <!--图标效果：html标签+数据部分(作用域插槽提供数据)-->
+            <!-- <span slot-scope="stData">{{stData.row}}</span>当前每个文章记录对象
+            { "id": 1194184832490406000, "title": "什么空间到拉萨？", "status": 0, "cover": { "type": 1, "images": [ "http://toutiao.meiduo.site/FrJ2hbwX8-kHG1cmhKRozkK483he" ] }, "pubdate": "2019-11-12 17:27:05" }-->
+            <img
+              :src="stData.row.cover.images[0]"
+              slot-scope="stData"
+              alt="没有图标"
+              width="150"
+              height="100"
             >
-            <el-tag type="info" v-else-if="stData.row.status === 2"
-              >审核通过</el-tag
-            >
-            <el-tag type="warning" v-else-if="stData.row.status === 3"
-              >审核失败</el-tag
-            >
-            <el-tag type="danger" v-else>已删除</el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column prop="pubdate" label="发布时间"> </el-table-column>
-        <el-table-column label="操作">
-          <template slot-scope="stData">
-            <el-button type="primary" size="mini">修改</el-button>
-            <el-button type="danger" size="mini" @click="del(stData.row.id)">删除</el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-
-      <el-pagination
-        @size-change="handleSizeChange"
-        @current-change="handleCurrentChange"
-        :current-page="searchForm.page"
-        :page-sizes="[10, 20, 30, 40]"
-        :page-size="searchForm.per_page"
-        layout="total, sizes, prev, pager, next, jumper"
-        :total="tot"
-      >
-      </el-pagination>
+          </el-table-column>
+          <el-table-column label="标题" prop="title"></el-table-column>
+          <el-table-column label="状态" prop="status">
+            <!--通过template统一设置接收作用域插槽数据-->
+            <template slot-scope="stData">
+              <el-tag v-if="stData.row.status===0">草稿</el-tag>
+              <el-tag v-else-if="stData.row.status===1" type="success">待审核</el-tag>
+              <el-tag v-else-if="stData.row.status===2" type="info">审核通过</el-tag>
+              <el-tag v-else-if="stData.row.status===3" type="warning">审核失败</el-tag>
+              <el-tag v-else type="danger">已删除</el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column label="发表时间" prop="pubdate"></el-table-column>
+          <el-table-column label="操作">
+            <!--内容区域设置当前列显示的信息-->
+            <template slot-scope="stData">
+              <el-button type="primary" size="mini">修改</el-button>
+              <el-button type="danger" size="mini" @click="del(stData.row.id)">删除</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+      </div>
+      <div class="text item">
+        <!--分页
+          @size-change="handleSizeChange" // 每页显示条数变化的回调事件处理，需要methods声明方法
+          @current-change="handleCurrentChange" //  当前页码变化的回调事件处理，需要methods声明方法
+          :current-page="currentPage4" // 默认当前页码
+          :page-sizes="[100, 200, 300, 400]" // 下拉列表，设置每页显示条数
+          :page-size="100" // 默认每页显示条数
+          layout="total, sizes, prev, pager, next, jumper" // 分页组件构件
+          :total="400" // 记录总条数
+        -->
+        <el-pagination
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+          :current-page="searchForm.page"
+          :page-sizes="[10, 20, 30, 40]"
+          :page-size="searchForm.per_page"
+          layout="total, sizes, prev, pager, next, jumper"
+          :total="tot"
+        ></el-pagination>
+      </div>
     </el-card>
   </div>
 </template>
 
 <script>
+
 export default {
-  name: 'articleList',
-  data () {
-    return {
-      // 定义时间中间值进行操作,通过调试工具可以知道,这个结果是一个数组形式的值,我们需要把他取出来放在searchForm中的两个对应的开始值和结束值
-      // 由于两个值是实时变化的,如果两个值直接定义则不会传双向绑定,这里我们需要用到一个侦听器watch来实时监测这个开始日期和结束日期的变化
-      timetotime: [],
-      // 给文章单独的定义一个数据,让他来进行数据的获取
-      articleList: [],
-      // 定义频道勒边的假数据
-      channelList: [
-        //   假数据
-        // { id: 101, name: 'html' },
-        // { id: 102, name: 'ajax' },
-        // { id: 103, name: 'nodejs' }
-      ],
-      // 表单域内绑定的数据
-      searchForm: {
-        //   文章的审核状态,设置为0,默认选中是全部的状态
-        status: '',
-        // 定义频道列表的id
-        channel_id: '',
-        begin_pubdate: '',
-        end_pubdate: '',
-        page: 1,
-        per_page: 10
-      },
-      tot: 0
-    }
-  },
+  // 每个组件都起一个名字
+  name: 'ArticleList',
+  // 监听器(data)
   watch: {
-    //   过滤器中有两个参数,第一个是新值,第二个是旧值
-    timetotime (newVal) {
-      //   console.log(newVal)经检验可以知道上面的值获取的是一个数组形式的值
-      // 此时可以通过判断newVal是否有值,如果有值就需要把值给文章的开始日期和结束日期
-      if (newVal) {
-        // let [this.searchForm.begin_pubdate, this.searchForm.end_pubdate] = newVal
-        // console.log(begin_pubdate, end_pubdate)
-        this.searchForm.begin_pubdate = newVal[0]
-        this.searchForm.end_pubdate = newVal[1]
-        // 经过调试工具的观察,此时的值已经是双向绑定了
+    // status变化的回调处理
+    // 'searchForm.status': function (newv, oldv) {
+    //   // 更新相关文章即可
+    //   // this.getArticleList()
+    // },
+    // data名称: function (newv, oldv) {
+    //   newv: data更新后的值
+    //   oldv: data更新前的旧值
+    // }
+    timetotime: function (newv, oldv) {
+      if (newv) {
+        // 把newv拆分为两份赋予给begin_pubdate 和 end_pubdate
+        this.searchForm.begin_pubdate = newv[0]
+        this.searchForm.end_pubdate = newv[1]
       } else {
+        // 清除时间条件信息
         this.searchForm.begin_pubdate = ''
         this.searchForm.end_pubdate = ''
       }
-      this.getArticleList()
+      // 根据新的 begin_pubdate 和 end_pubdate 筛选文章
+      // this.getArticleList()
+    },
+    // 对searchForm的各个成员多深度监听，统一筛选获得文章
+    searchForm: {
+      handler: function (newv, oldv) {
+        this.getArticleList()
+      },
+      deep: true
+    }
+  },
+  data () {
+    return {
+      timetotime: '', // 临时成员，接收范围时间，后期分配给begin_pubdate和end_pubdate，接收到数组信息，里边有两个时间而已
+      channelList: [], // 频道列表
+      articleList: [], // 文章列表
+      searchForm: {
+        status: '', // 文章状态，0-草稿，1-待审核，2-审核通过，3-审核失败，4-已删除，不传为全部
+        channel_id: '', // 频道信息
+        begin_pubdate: '', // 文章发布开始时间
+        end_pubdate: '', // 文章发布结束时间
+        page: 1, // 默认获取第1页数据
+        per_page: 10 // 每页获得10条记录
+      },
+      tot: 0 // 文章总记录条数
     }
   },
   created () {
-    // 获取频道列表功能
+    // 获得频道列表
     this.getChannelList()
-    // 获取文章列表功能
-    // 经过直接调用接口发现数据有问题,报错401,主要是因为缺少token的指令,所以这里我们需要用到一个认证信息,而这个信息是直接写到axios的拦截器中的
+    // 获得文章列表
     this.getArticleList()
   },
   methods: {
-    // 这里使用的是每次变化的条数
+    // 删除文章数据
+    del (id) {
+      this.$confirm('确认要删除该数据么？', '删除', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        // axios.get()查询/post()添加/put()修改/delete()删除
+        let pro = this.$http.delete(`/articles/${id}`)
+        pro
+          .then(result => {
+          // 页面刷新即可
+            this.getArticleList()
+          })
+          .catch(err => {
+            return this.$message.error('删除文章失败:' + err)
+          })
+      }).catch(() => { })
+    },
+    // 分页相关
+    // 每页显示条数变化的回调事件处理
     handleSizeChange (val) {
+      // val: 更新后的每页条数
+      // console.log(val)
+      // 更新per_page
       this.searchForm.per_page = val
-      this.getArticleList()
+      // 重新获得数据
+      // this.getArticleList()
     },
+    // 当前页码变化的回调事件处理
     handleCurrentChange (val) {
+      // val:变化后的当前页码
+      // console.log(val)
+      // 把变化后页码赋予给page成员
       this.searchForm.page = val
-      this.getArticleList()
+      // 根据变化后页码重新获得数据
+      // this.getArticleList()
     },
+    // 获得文章列表信息
+    getArticleList () {
+      // 把空的筛选条件都去除
+      let searchData = {} // 筛选后的条件数据
+      for (var i in this.searchForm) {
+        // i：代表遍历出来对象的成员属性名称： status、channel_id、page等等
+        if (this.searchForm[i]) {
+          searchData[i] = this.searchForm[i]
+        }
+      }
+
+      let pro = this.$http.get('/articles', { params: searchData })
+      pro
+        .then(result => {
+          if (result.data.message === 'OK') {
+            // 把获得好的文章信息赋予给articleList成员
+            this.articleList = result.data.data.results
+            // 把总条数赋予给tot成员
+            this.tot = result.data.data.total_count
+          }
+        })
+        .catch(err => {
+          return this.$message.error('获得文章错误:' + err)
+        })
+    },
+    // 获得频道
     getChannelList () {
       let pro = this.$http.get('/channels')
       pro
         .then(result => {
-          //   console.log(result)
-          this.channelList = result.data.data.channels
+          // console.log(result) // config 【data】 request headers  status statusText
+          if (result.data.message === 'OK') {
+            // 把获得好的频道给与channelList成员
+            this.channelList = result.data.data.channels
+          }
         })
         .catch(err => {
-          //   console.log(err)
-          return this.$message.error('获取用户频道失败' + err)
-        })
-    },
-    // 获取文章列表功能
-    getArticleList () {
-      // 把 searchForm为空的时候都去掉,然后再重新赋值一个信息的对象
-      let searchData = {}
-      // 对searchForm进行遍历
-      for (var k in this.searchForm) {
-        // 遍历的时候需要判断一下当前的值是否存在
-        if (this.searchForm[k]) {
-          searchData[k] = this.searchForm[k]
-        }
-      }
-      // 在传参数的时候,当频道id为空或者是status的值为空的时候,就会出现检验不准确的情况,所以这里我们要提前对其进行判断
-      let pro = this.$http.get('/articles', { params: searchData })
-      pro
-        .then(result => {
-          // console.log(result)
-          this.articleList = result.data.data.results
-          // console.log(this.articleList)
-          this.tot = result.data.data.total_count
-        })
-        .catch(err => {
-          return err
-        })
-    },
-    del (id) {
-      // console.log(id)
-      let pro = this.$http.delete(`/articles/${id}`)
-      pro
-        .then(result => {
-          // console.log(result)
-          this.$message.success('文章删除成功')
-          this.getArticleList()
-        })
-        .catch(err => {
-          return this.$message.error('删除失败' + err)
+          return this.$message.error('获得频道错误:' + err)
         })
     }
   }
@@ -249,8 +264,8 @@ export default {
 .box-card {
   margin-bottom: 15px;
 }
+/*分页样式*/
 .el-pagination {
-  margin-top: 20px;
-  text-align: center;
+  margin-top: 15px;
 }
 </style>
