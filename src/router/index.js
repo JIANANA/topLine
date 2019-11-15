@@ -10,10 +10,12 @@ const routes = [
     component: () => import('@/views/home'),
     redirect: '/welcome',
     children: [
-      { path: '/welcome', name: 'welcome', component: () => import('@/views/welcome') },
       { path: '/', redirect: '/welcome' },
+      { path: '/welcome', name: 'welcome', component: () => import('@/views/welcome') },
+      { path: '/articleedit/:aid', name: 'articleedit', component: () => import('@/views/articleedit') },
       { path: '/article', name: 'article', component: () => import('@/views/article') },
-      { path: '/articleadd', name: 'articleadd', component: () => import('@/views/articleadd') }
+      { path: '/articleadd', name: 'articleadd', component: () => import('@/views/articleadd') },
+      { path: '/account', name: 'account', component: () => import('@/views/account') }
     ]
   }
 ]

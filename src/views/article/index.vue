@@ -20,16 +20,18 @@
             </el-radio-group>
           </el-form-item>
           <el-form-item label="频道列表：">
-            <el-select v-model="searchForm.channel_id" placeholder="请选择" clearable >
+            <!-- <el-select v-model="searchForm.channel_id" placeholder="请选择" clearable > -->
               <!--label:小项目对外提示名称-->
               <!--value:小项目本身的value值-->
-              <el-option
+              <!-- <el-option
                 v-for="item in channelList"
                 :key="item.id"
                 :label="item.name"
                 :value="item.id"
               ></el-option>
-            </el-select>
+            </el-select> -->
+            <!-- 同样的,这里的数据也是子组件的数据已知,想要传递给父组件 -->
+            <channel-com @slt="selectHandler"></channel-com>
           </el-form-item>
           <el-form-item label="时间选择：">
             <!--type:日期选取器类型 year/month/date/dates/ week/datetime/datetimerange/ daterange/monthrange-->
@@ -88,7 +90,7 @@
           <el-table-column label="操作">
             <!--内容区域设置当前列显示的信息-->
             <template slot-scope="stData">
-              <el-button type="primary" size="mini">修改</el-button>
+              <el-button type="primary" size="mini" @click="articleedit(stData.row.id)">修改</el-button>
               <el-button type="danger" size="mini" @click="del(stData.row.id)">删除</el-button>
             </template>
           </el-table-column>
@@ -119,7 +121,7 @@
 </template>
 
 <script>
-
+import ChannelCom from '@/components/channel.vue'
 export default {
   // 每个组件都起一个名字
   name: 'ArticleList',
@@ -178,6 +180,17 @@ export default {
     this.getArticleList()
   },
   methods: {
+    // 定义一个方法接收参数
+    selectHandler (val) {
+      this.searchForm.channel_id = val
+    },
+    // 点击修改文章
+    articleedit (id) {
+      // console.log(123)
+      // 这里采用了路由传参的方式,把要修改的id传入到对应的文件中
+      this.$router.push(`/articleedit/${id}`)// 经过观察发现id已经成员传入到url文件中
+      // id传入到ur中就需要通过id获取数据填充到响应的页面中
+    },
     // 删除文章数据
     del (id) {
       this.$confirm('确认要删除该数据么？', '删除', {
@@ -256,6 +269,9 @@ export default {
           return this.$message.error('获得频道错误:' + err)
         })
     }
+  },
+  components: {
+    ChannelCom
   }
 }
 </script>
