@@ -11,6 +11,7 @@ const routes = [
     redirect: '/welcome',
     children: [
       { path: '/', redirect: '/welcome' },
+      { path: '/material', name: 'material', component: () => import('@/views/material') },
       { path: '/welcome', name: 'welcome', component: () => import('@/views/welcome') },
       { path: '/articleedit/:aid', name: 'articleedit', component: () => import('@/views/articleedit') },
       { path: '/article', name: 'article', component: () => import('@/views/article') },

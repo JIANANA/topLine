@@ -29,6 +29,22 @@
             <el-radio :label="0">无图</el-radio>
             <el-radio :label="-1">自动</el-radio>
           </el-radio-group>
+          <ul>
+            <li
+              class="uploadbox"
+              v-for="item in covernum"
+              :key="item"
+              @click="showDialog()"
+            >
+              <span>点击图标选择图片</span>
+              <img
+                v-if="addForm.cover.images[item - 1]"
+                :src="addForm.cover.images[item - 1]"
+                alt=""
+              />
+              <div v-else class="el-icon-picture-outline"></div>
+            </li>
+          </ul>
         </el-form-item>
         <!-- 频道部分 -->
         <el-form-item label="频道" prop="channel_id">
@@ -56,6 +72,22 @@
           <el-button @click="articleAdd(false)">存入草稿</el-button>
         </el-form-item>
       </el-form>
+      <el-dialog title="提示" :visible.sync="dialogVisible" width="70%">
+        <ul>
+          <li
+            class="image-box"
+            v-for="item in imageList"
+            :key="item.id"
+            ref="getli"
+          >
+            <img :src="item.url" alt="没有图片" @click="clkImage" />
+          </li>
+        </ul>
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="dialogVisible = false">取 消</el-button>
+          <el-button type="primary" @click="imageOK">确 定</el-button>
+        </span>
+      </el-dialog>
     </el-card>
   </div>
 </template>
@@ -73,11 +105,12 @@ export default {
     return {
       // 定义频道列表数据
       // channelList: [],
+      imageList: [], // 素材图片列表
       addForm: {
         title: '', // 文章标题
         content: '', // 文章标题
         cover: {
-          type: 0, // 封面类型 -1:自动，0-无图，1-1张，3-3张
+          type: 3, // 封面类型 -1:自动，0-无图，1-1张，3-3张
           images: []
         },
         channel_id: '' // 频道信息
@@ -95,13 +128,70 @@ export default {
         ],
         content: [{ required: true, message: '内容必填' }],
         channel_id: [{ required: true, message: '频道必选' }]
+      },
+      dialogVisible: false,
+      // 获取素材图片的条件参数
+      querycdt: {
+        collect: false, // 非收藏图片
+        page: 1,
+        per_page: 12
+      },
+      materialUrl: ''
+    }
+  },
+  computed: {
+    // 经过观察我们可以知道此时的type类型和图片的显示张数有着必然的关系,当图片type大于0时他的显示张数就是他的类型数,
+    covernum () {
+      if (this.addForm.cover.type > 0) {
+        return this.addForm.cover.type
+      } else {
+        return 0
       }
     }
   },
-  // created () {
-  //   this.getChannelList()
-  // },
+  created () {
+    this.getImageList()
+  },
   methods: {
+    imageOK () {
+      if (this.materialUrl) {
+        // 给添加文章的表单域成员cover.image增加素材图片请求地址信息
+        this.addForm.cover.images[this.xu] = this.materialUrl
+        this.dialogVisible = false // 关闭对话框
+      } else {
+        this.$message.error('咋地，不挑一个再走啊')
+      }
+    },
+    // 获取图片的高亮效果
+    clkImage (evt) {
+      // console.log(evt)输出是一个鼠标事件
+      // evt.target是一个DOM对象
+      let lis = document.querySelectorAll('.image-box')
+      for (var i = 0; i < lis.length; i++) {
+        lis[i].style.border = ''
+      }
+      // this.$refs.getli.style.height = 100 + 'px'
+      // console.log(this.$refs.getli)
+      evt.target.parentNode.style.border = '6px solid red'
+      this.materialUrl = evt.target.src
+    },
+    // 获取素材图片列表
+    getImageList () {
+      let pro = this.$http.get('/user/images', { params: this.querycdt })
+      pro
+        .then(result => {
+          if (result.data.message === 'OK') {
+            this.imageList = result.data.data.results
+          }
+        })
+        .catch(err => {
+          return this.$message.error('获得素材图片列表错误:' + err)
+        })
+    },
+    // 添加显示对话框
+    showDialog () {
+      this.dialogVisible = true
+    },
     // 定义子组件的方法
     selectHandler (val) {
       // console.log(val + '---val')
@@ -139,7 +229,6 @@ export default {
         }
       })
     }
-
   },
   components: {
     quillEditor,
@@ -151,5 +240,51 @@ export default {
 <style lang="less" scoped>
 .el-form /deep/ .ql-editor {
   height: 200px;
+}
+// 文章封面选择框样式
+.uploadbox {
+  list-style: none;
+  width: 200px;
+  height: 200px;
+  margin: 10px;
+  float: left;
+  cursor: pointer;
+  border: 1px solid #eee;
+  span {
+    width: 200px;
+    height: 50px;
+    line-height: 50px;
+    display: block;
+    text-align: center;
+  }
+  div {
+    width: 200px;
+    height: 150px;
+    font-size: 100px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #fff;
+  }
+  img {
+    width: 200px;
+    height: 150px;
+  }
+}
+// 对话框素材图片列表相关css样式
+.image-box {
+  list-style: none;
+  width: 200px;
+  height: 140px;
+  background-color: #fff;
+  margin: 10px;
+  float: left;
+  border: 1px solid #eee;
+  cursor: pointer;
+  box-sizing: border-box;
+  img {
+    width: 100%;
+    height: 100%;
+  }
 }
 </style>

@@ -23,7 +23,7 @@
           <el-menu-item index="/articleadd">发布文章</el-menu-item>
           <el-menu-item index="/article">文章列表</el-menu-item>
           <el-menu-item index="2-3">评论列表</el-menu-item>
-          <el-menu-item index="2-4">素材管理</el-menu-item>
+          <el-menu-item index="/material">素材管理</el-menu-item>
         </el-submenu>
         <el-menu-item index="3" :style="{width:isCollapse?'65px': '200px'}">
           <i class="el-icon-location"></i>
@@ -85,18 +85,52 @@
 </template>
 
 <script>
+// 导入bus
+import bus from '@/utils/bus.js'
 export default {
   data () {
     return {
-      isCollapse: false
+      isCollapse: false,
+      tmpname: '',
+      tmpphoto: ''
     }
+  },
+  created () {
+    // 对name进行更新操作
+    // 在home的create函数中声明$on事件,为了保证this指向要保证是箭头函数
+    bus.$on('upAccountName', nm => {
+      // console.log(val)
+      // 经过打印发现当前修改的值已经传输过来了,所以这里我们可以对其进行一些相关的操作
+      // 我们想要修改属性值,但是发现是计算属性,虽然用法一样,但是计算属性还是不等于data值,
+      // 所以我们可以定义一个临时的数据进行接收
+      this.tmpname = nm
+      // 所以这里需要在更新成功之后将临时的数据存入到内存之中
+      let userinfo = JSON.parse(window.sessionStorage.getItem('userinfo'))
+      userinfo.name = this.tmpname
+      window.sessionStorage.setItem('userinfo', JSON.stringify(userinfo))
+      // 经检验此时已经更新成功了
+    })
+    // 对头像进行更新操作
+    bus.$on('upAccountPhoto', ph => {
+      // console.log(val)
+      // 经过打印发现当前修改的值已经传输过来了,所以这里我们可以对其进行一些相关的操作
+      // 我们想要修改属性值,但是发现是计算属性,虽然用法一样,但是计算属性还是不等于data值,
+      // 所以我们可以定义一个临时的数据进行接收
+      this.tmpphoto = ph
+      // 所以这里需要在更新成功之后将临时的数据存入到内存之中
+      let userinfo = JSON.parse(window.sessionStorage.getItem('userinfo'))
+      userinfo.photo = this.tmpphoto
+      window.sessionStorage.setItem('userinfo', JSON.stringify(userinfo))
+      // 经检验此时已经更新成功了
+    })
   },
   computed: {
     name () {
-      return JSON.parse(window.sessionStorage.getItem('userinfo')).name
+      // 这里可以通过短路语法的方式,进行逻辑或的操作,经检验此时已经更新成功了,但是内存中并未更新成功
+      return this.tmpname || JSON.parse(window.sessionStorage.getItem('userinfo')).name
     },
     photo () {
-      return JSON.parse(window.sessionStorage.getItem('userinfo')).photo
+      return this.tmpphoto || JSON.parse(window.sessionStorage.getItem('userinfo')).photo
     }
   },
   methods: {

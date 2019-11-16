@@ -146,7 +146,7 @@ export default {
       // 这里得到是一个promise的对象,这里可以通过.then.catch的方式获得,但是我们之前学过async函数,所以可以将异步的任务变成是同步的任务进行相关的操作
       // console.log(this.loginForm)
       var pro = this.$http.post('/authorizations', this.loginForm)
-      console.log(this.loginForm)
+      // console.log(this.loginForm)
       // console.log(res.data)
       pro
         .then(result => {

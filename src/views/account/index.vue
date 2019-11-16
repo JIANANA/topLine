@@ -56,6 +56,9 @@
 </template>
 
 <script>
+// 导入bus
+import bus from '@/utils/bus.js'
+// 注意这里是account 给home传值,所以需要在home里面定义的$on方法,在account中定义的是$emit方法
 export default {
   data () {
     return {
@@ -101,6 +104,7 @@ export default {
         //   console.log(result)
           if (result.data.message === 'OK') {
             this.accountForm.photo = result.data.data.photo
+            bus.$emit('upAccountPhoto', result.data.data.photo)
             return this.$message.success('上传头像成功')
           }
         })
@@ -122,6 +126,8 @@ export default {
             .then(result => {
               if (result.data.message === 'OK') {
                 // 提示成功
+                // 修改信息成功之后,需要对将更新成功的数据传递给home组件
+                bus.$emit('upAccountName', result.data.data.name)
                 this.$message.success('修改账号信息成功')
               }
             })
