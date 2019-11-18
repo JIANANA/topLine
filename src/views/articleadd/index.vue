@@ -34,7 +34,7 @@
               class="uploadbox"
               v-for="item in covernum"
               :key="item"
-              @click="showDialog()"
+              @click="showDialog(item)"
             >
               <span>点击图标选择图片</span>
               <img
@@ -73,7 +73,8 @@
         </el-form-item>
       </el-form>
       <el-dialog title="提示" :visible.sync="dialogVisible" width="70%">
-        <ul>
+        <!-- 由于浮动的影响这里需要清除一下浮动让ul的宽度不为0 -->
+        <ul class="clear">
           <li
             class="image-box"
             v-for="item in imageList"
@@ -93,16 +94,20 @@
 </template>
 
 <script>
-import 'quill/dist/quill.core.css'
-import 'quill/dist/quill.snow.css'
-import 'quill/dist/quill.bubble.css'
-import { quillEditor } from 'vue-quill-editor'
+import 'quill/dist/quill.core.css';
+import 'quill/dist/quill.snow.css';
+import 'quill/dist/quill.bubble.css';
+import { quillEditor } from 'vue-quill-editor';
 // 引入频道列表组件
-import ChannelCom from '@/components/channel.vue'
+import ChannelCom from '@/components/channel.vue';
 export default {
   name: 'ArticleAdd',
   data () {
     return {
+      // 定义一个变量,记录当前图片的路径
+      materialUrl: '',
+      // 在数据中定义个变量接收当前的值
+      xu: '',
       // 定义频道列表数据
       // channelList: [],
       imageList: [], // 素材图片列表
@@ -153,11 +158,21 @@ export default {
     this.getImageList()
   },
   methods: {
+    // 此时点击发现上传完成之后再次传值,还是会出现被选中的情况,此时需要在清除边框,并且在清除边框的同时,将图片路径也清除
+    clearImage () {
+      let lis = document.querySelectorAll('.image-box')
+      for (var i = 0; i < lis.length; i++) {
+        lis[i].style.border = '';
+      }
+      this.materialUrl = '';
+    },
     imageOK () {
       if (this.materialUrl) {
         // 给添加文章的表单域成员cover.image增加素材图片请求地址信息
         this.addForm.cover.images[this.xu] = this.materialUrl
         this.dialogVisible = false // 关闭对话框
+        this.clearImage()
+        // 由于我们使用的是element-ui的组件,在这个组件本身就有一个关闭的方法,我们可以在关闭的时候清除也可以
       } else {
         this.$message.error('咋地，不挑一个再走啊')
       }
@@ -166,13 +181,10 @@ export default {
     clkImage (evt) {
       // console.log(evt)输出是一个鼠标事件
       // evt.target是一个DOM对象
-      let lis = document.querySelectorAll('.image-box')
-      for (var i = 0; i < lis.length; i++) {
-        lis[i].style.border = ''
-      }
+      this.clearImage()
       // this.$refs.getli.style.height = 100 + 'px'
       // console.log(this.$refs.getli)
-      evt.target.parentNode.style.border = '6px solid red'
+      evt.target.parentNode.style.border = '6px solid red';
       this.materialUrl = evt.target.src
     },
     // 获取素材图片列表
@@ -189,7 +201,10 @@ export default {
         })
     },
     // 添加显示对话框
-    showDialog () {
+    showDialog (n) {
+      // 当显示对话框的时候记录三个之中的哪个图片被选中了
+      this.xu = n - 1
+      // 显示对话框的时候记录点击图片的成员
       this.dialogVisible = true
     },
     // 定义子组件的方法
@@ -286,5 +301,10 @@ export default {
     width: 100%;
     height: 100%;
   }
+}
+.clear {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
 }
 </style>
